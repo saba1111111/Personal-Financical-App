@@ -1,5 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { json } from 'body-parser';
+import mongoose from 'mongoose';
+import envVars from './config';
 
 const app = express();
 
@@ -18,4 +20,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 	next();
 });
 
-app.listen(3000);
+mongoose
+	.connect(envVars.MONGODB_CONNECT_URL as string)
+	.then(() => {
+		app.listen(4000);
+	})
+	.catch((error) => console.log(error));
