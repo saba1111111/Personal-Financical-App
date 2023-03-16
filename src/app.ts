@@ -2,9 +2,10 @@ import express, { NextFunction, Request, Response } from 'express';
 import { json } from 'body-parser';
 import mongoose from 'mongoose';
 import envVars from './config';
+import authRoute from './routes/auth.routes';
+import { MyError } from './utils/customThrowErrorFunc';
 
 const app = express();
-
 app.use(json());
 
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -18,6 +19,14 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 		'Content-Type, Authorization'
 	);
 	next();
+});
+
+app.use('/auth', authRoute);
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
+app.use((error: MyError, req: Request, res: Response, next: NextFunction) => {
+	const code = error.code || 500;
+	res.status(code).json({ error: error.message });
 });
 
 mongoose
