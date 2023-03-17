@@ -9,4 +9,10 @@ interface LoginUser {
 	password: string;
 }
 
-export { CreateUser, LoginUser };
+interface ResetPasswordTypes {
+	email: string;
+	code: string;
+	newPassword: string;
+}
+
+export { CreateUser, LoginUser, ResetPasswordTypes };

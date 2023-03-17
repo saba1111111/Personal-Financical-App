@@ -12,6 +12,10 @@ const envVarsSchema = Yup.object({
 	JWT_SECRET_TOKEN: Yup.string().required(
 		'JWT_SECRET_TOKEN is required in .env file!'
 	),
+	EMAIL: Yup.string().required('EMAIL is required in .env file!'),
+	EMAIL_PASSWORD: Yup.string().required(
+		'EMAIL_PASSWORD is required in .env file!'
+	),
 });
 
 envVarsSchema.validate(process.env).catch((error) => {

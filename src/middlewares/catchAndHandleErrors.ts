@@ -1,11 +1,8 @@
 import { RequestHandler } from 'express';
 import { validationResult } from 'express-validator';
-import {
-	signUpValidation,
-	signInValidation,
-} from '../validations/auth.validation';
+import validations from '../validations/auth.validation';
 
-export const catchErrors: RequestHandler = (req, res, next) => {
+const catchErrors: RequestHandler = (req, res, next) => {
 	const errors = validationResult(req);
 
 	if (!errors.isEmpty()) {
@@ -16,5 +13,11 @@ export const catchErrors: RequestHandler = (req, res, next) => {
 	next();
 };
 
-export const checkSignUpValidation = [signUpValidation, catchErrors];
-export const checkSignInValidation = [signInValidation, catchErrors];
+const validationMidllewares = {
+	SignUp: [validations.signUpValidation, catchErrors],
+	SignIn: [validations.signInValidation, catchErrors],
+	PasswordResetCheck: [validations.PasswordResetCheckValidation, catchErrors],
+	PasswordReset: [validations.resetPasswordValidation, catchErrors],
+};
+
+export default validationMidllewares;
