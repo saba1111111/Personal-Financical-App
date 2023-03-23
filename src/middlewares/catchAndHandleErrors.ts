@@ -1,6 +1,8 @@
 import { RequestHandler } from 'express';
 import { validationResult } from 'express-validator';
-import validations from '../validations/auth.validation';
+import authValidations from '../validations/auth.validation';
+import categoryValidations from '../validations/category.validation';
+import transactionValidation from '../validations/transaction.validation';
 
 const catchErrors: RequestHandler = (req, res, next) => {
 	const errors = validationResult(req);
@@ -14,10 +16,18 @@ const catchErrors: RequestHandler = (req, res, next) => {
 };
 
 const validationMidllewares = {
-	SignUp: [validations.signUpValidation, catchErrors],
-	SignIn: [validations.signInValidation, catchErrors],
-	PasswordResetCheck: [validations.PasswordResetCheckValidation, catchErrors],
-	PasswordReset: [validations.resetPasswordValidation, catchErrors],
+	SignUp: [authValidations.signUp, catchErrors],
+	SignIn: [authValidations.signIn, catchErrors],
+	PasswordResetCheck: [authValidations.email, catchErrors],
+	PasswordReset: [authValidations.resetPassword, catchErrors],
+	creatCategory: [categoryValidations.creatCategory, catchErrors],
+	updateCategory: [categoryValidations.updateNameAndDescription, catchErrors],
+	deleteCategory: [categoryValidations.deleteCategory, catchErrors],
+	createTransaction: [transactionValidation.createTransaction, catchErrors],
+	filterAndSortTransactions: [
+		transactionValidation.filterAndSortTransactions,
+		catchErrors,
+	],
 };
 
 export default validationMidllewares;

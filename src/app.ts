@@ -4,6 +4,10 @@ import mongoose from 'mongoose';
 import envVars from './config';
 import authRoute from './routes/auth.routes';
 import { MyError } from './utils/customThrowErrorFunc';
+import categoryRoute from './routes/category.routes';
+import transactionRoute from './routes/transaction.routes';
+import swaggerDoc from 'swagger-ui-express';
+import swaggerDocumentation from './documentation';
 
 const app = express();
 app.use(json());
@@ -22,6 +26,14 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use('/auth', authRoute);
+app.use('/category', categoryRoute);
+app.use('/transaction', transactionRoute);
+
+app.use(
+	'/documentation',
+	swaggerDoc.serve,
+	swaggerDoc.setup(swaggerDocumentation)
+);
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 app.use((error: MyError, req: Request, res: Response, next: NextFunction) => {
@@ -32,6 +44,6 @@ app.use((error: MyError, req: Request, res: Response, next: NextFunction) => {
 mongoose
 	.connect(envVars.MONGODB_CONNECT_URL as string)
 	.then(() => {
-		app.listen(4000);
+		app.listen(envVars.PORT);
 	})
 	.catch((error) => console.log(error));

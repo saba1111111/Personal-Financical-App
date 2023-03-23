@@ -1,16 +1,15 @@
 import { RequestHandler } from 'express';
-import {
-	createUser,
-	RessetPassword,
-	loginUser,
-	PasswordResetEmailCheck,
-} from '../services/auth.service';
+import services from '../services/auth.service';
 
 const handleSignUp: RequestHandler = async (req, res, next) => {
 	const { userName, email, password } = req.body;
 
 	try {
-		const newUser = await createUser({ userName, email, password });
+		const newUser = await services.createUser({
+			userName,
+			email,
+			password,
+		});
 
 		res.status(201).json({
 			message: 'Successfully created user!',
@@ -25,7 +24,7 @@ const handleSignIn: RequestHandler = async (req, res, next) => {
 	const { email, password } = req.body;
 
 	try {
-		const signInUser = await loginUser({ email, password });
+		const signInUser = await services.loginUser({ email, password });
 
 		res.status(200).json({
 			message: 'User successfully logged in!',
@@ -40,7 +39,7 @@ const handlePasswordResetCheck: RequestHandler = async (req, res, next) => {
 	const { email } = req.body;
 
 	try {
-		await PasswordResetEmailCheck(email);
+		await services.PasswordResetCheck(email);
 
 		res.status(200).json({
 			message:
@@ -55,7 +54,7 @@ const handlePasswordReset: RequestHandler = async (req, res, next) => {
 	const { email, code, newPassword } = req.body;
 
 	try {
-		await RessetPassword({ email, code, newPassword });
+		await services.RessetPassword({ email, code, newPassword });
 
 		res.status(200).json({
 			message: 'Password has been updated successfully.',

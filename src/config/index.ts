@@ -16,6 +16,7 @@ const envVarsSchema = Yup.object({
 	EMAIL_PASSWORD: Yup.string().required(
 		'EMAIL_PASSWORD is required in .env file!'
 	),
+	PORT: Yup.string().required('PORT is required in .env file!'),
 });
 
 envVarsSchema.validate(process.env).catch((error) => {

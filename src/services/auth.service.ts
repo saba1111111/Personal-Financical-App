@@ -3,17 +3,16 @@ import { addUser, findUser } from '../repositories/auth.repository';
 import { hash, compare } from 'bcryptjs';
 import envVars from '../config';
 import jsonwebtoken from 'jsonwebtoken';
-import {
-	CreateUser,
-	LoginUser,
-	ResetPasswordTypes,
-} from '../interfaces/auth.types';
 import { randomBytes } from 'crypto';
-import { sendEmail } from '../utils/sendEmail';
+import { sendEmail } from '../helper/sendEmail';
+import { addCategory } from '../repositories/category.repository';
 
-export const createUser = async ({ userName, email, password }: CreateUser) => {
-	const user = await findUser({ email });
-	if (user) throwError(`Already have User With This Email: ${email}`, 409);
+const createUser = async (user: Auth.CreateUser) => {
+	const { userName, email, password } = user;
+
+	const checkUser = await findUser({ email });
+	if (checkUser)
+		throwError(`Already have User With This Email: ${email}`, 409);
 
 	const hashPssword = await hash(password, 12);
 	const createNewUser = await addUser({
@@ -22,10 +21,22 @@ export const createUser = async ({ userName, email, password }: CreateUser) => {
 		password: hashPssword,
 	});
 
-	return createNewUser;
+	await addCategory({
+		name: 'default',
+		description: 'Here are all the Uncategorized transactions.',
+		user: createNewUser._id.toString(),
+	});
+
+	return {
+		email: createNewUser.email,
+		userName: createNewUser.userName,
+		id: createNewUser._id.toString(),
+	};
 };
 
-export const loginUser = async ({ email, password }: LoginUser) => {
+const loginUser = async (loginUser: Auth.LoginUser) => {
+	const { email, password } = loginUser;
+
 	const user = await findUser({ email });
 	if (!user) return throwError(`No such User With This Email: ${email}`, 409);
 
@@ -34,7 +45,7 @@ export const loginUser = async ({ email, password }: LoginUser) => {
 
 	const JWT_SECRET_TOKEN = envVars.JWT_SECRET_TOKEN as string;
 	const jwtToken = jsonwebtoken.sign(
-		{ email, id: user._id.toString() },
+		{ userId: user._id.toString() },
 		JWT_SECRET_TOKEN,
 		{ expiresIn: '1h' }
 	);
@@ -42,7 +53,7 @@ export const loginUser = async ({ email, password }: LoginUser) => {
 	return { token: jwtToken, userId: user._id.toString() };
 };
 
-export const PasswordResetEmailCheck = async (email: string) => {
+const PasswordResetCheck = async (email: string) => {
 	const user = await findUser({ email });
 	if (!user) return throwError(`No such User With This Email: ${email}`, 409);
 
@@ -59,7 +70,7 @@ export const PasswordResetEmailCheck = async (email: string) => {
 	});
 };
 
-export const RessetPassword = async (props: ResetPasswordTypes) => {
+const RessetPassword = async (props: Auth.ResetPasswordTypes) => {
 	const { code, email, newPassword } = props;
 
 	const user = await findUser({
@@ -69,7 +80,7 @@ export const RessetPassword = async (props: ResetPasswordTypes) => {
 	});
 	if (!user)
 		return throwError(
-			`Password update unsuccessful. Please try again.`,
+			`Invalid data. Password not updated. Please try again.`,
 			409
 		);
 
@@ -80,3 +91,5 @@ export const RessetPassword = async (props: ResetPasswordTypes) => {
 
 	await user.save();
 };
+
+export default { createUser, loginUser, PasswordResetCheck, RessetPassword };

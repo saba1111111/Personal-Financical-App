@@ -14,6 +14,13 @@ const UserSchema = new Schema(
 			required: true,
 			type: String,
 		},
+		categories: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: 'Category',
+				required: true,
+			},
+		],
 		resetCode: String,
 		resetCodeExpiration: Number,
 	},

@@ -1,20 +1,27 @@
 import { body } from 'express-validator';
-import { emailValidation, passwordValidation } from '.';
 
-const signUpValidation = [
+const email = body('email')
+	.exists()
+	.withMessage('Email is required.')
+	.isEmail()
+	.withMessage('invalid email address!');
+
+const password = body('password')
+	.isLength({ min: 5 })
+	.withMessage('The password must have a minimum length of 5 characters.');
+
+const signUp = [
 	body('userName', 'Username is required and must not be empty')
 		.exists()
 		.notEmpty(),
-	emailValidation,
-	passwordValidation,
+	email,
+	password,
 ];
 
-const signInValidation = [emailValidation, passwordValidation];
+const signIn = [email, password];
 
-const PasswordResetCheckValidation = emailValidation;
-
-const resetPasswordValidation = [
-	emailValidation,
+const resetPassword = [
+	email,
 	body('code', 'Code is required and must not be empty').exists().notEmpty(),
 	body('newPassword')
 		.isLength({ min: 5 })
@@ -24,8 +31,8 @@ const resetPasswordValidation = [
 ];
 
 export default {
-	signUpValidation,
-	signInValidation,
-	resetPasswordValidation,
-	PasswordResetCheckValidation,
+	signUp,
+	signIn,
+	resetPassword,
+	email,
 };
